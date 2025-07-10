@@ -6,12 +6,14 @@ const fieldCharacter = '░';
 const pathCharacter = '*';
 
 class Field {
-  constructor(field, randomStart, hardMode) {
+  constructor(field, options) {
     this.field = field;
     this.randomStart = randomStart;
     this.hardmode = hardMode;
     this.fieldHeight = this.field.length; // to loop through y
     this.fieldWidth = this.field[0].length // to loop through x
+    this.randomStart = options.randomStart;
+    this.hardMode = options.hardMode;
     
     //helper to randomSwap first character
     let randomSwap = (hole, fieldCharacter) => {
@@ -35,18 +37,13 @@ class Field {
             this.field[randomYPath][randomXPath] = pathCharacter;
             }
         }
-    }
-
+    
     if (this.randomStart) {
         randomSwap(hole,fieldCharacter);
         randomPathCharacter(pathCharacter);
     }
   }
-
-
-  playGame() {
-    this.print(this.field);
-
+    
     //find start position
     const findAsterisk = (field) => {
       for (let y = 0; y<this.fieldHeight; y++ ) {
@@ -57,15 +54,20 @@ class Field {
         }
       }
     }
+      
+    const {row, column} = findAsterisk(field);
+    this.x = row
+    this.y = column      
 
-    //coordinates - updating through loop
-    let y = findAsterisk(this.field).row;
-    let x = findAsterisk(this.field).column;
+    }
+
+  playGame() {
+    this.print(this.field);
 
     let loopCounter = 0;
 
     //code to allow prompt and movement
-    while (this.field[y][x] !== fieldCharacter || this.field [y][x] !== pathCharacter) {
+    while (this.field[this.y][this.x] !== fieldCharacter || this.field [this.y][this.x] !== pathCharacter) {
 
       // helper functions for 3 terminate conditions:
       const loseCon = (y,x) => {
@@ -201,7 +203,7 @@ const myField = new Field([
   ['O', 'O', '░', '░'],
   ['O', 'O', '░', '░'],
   ['░', '0', '░', '^'],
-],"RandomStart", "HardMode");
+],{ randomStart: true, hardMode: false });
 
 myField.playGame()
 
