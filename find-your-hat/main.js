@@ -63,7 +63,7 @@ class Field {
   getGameState() {
      let fieldState = this.field[this.y][this.x];
      
-     if (fieldState === hat) {
+    if (fieldState === hat) {
       console.log("You're a winner")
      }
      
@@ -74,7 +74,6 @@ class Field {
     if (fieldState !== hat && fieldState !== hole && fieldState !== fieldCharacter && fieldState !== pathCharacter) {
         console.log("You're out of bounds fella");
        }
-
   }
 
   outOfBounds() {
@@ -114,8 +113,12 @@ class Field {
 
       default:
       console.log('you must only enter (w/a/s/d)')
-    }
+
+      }
+    if (!this.outOfBounds() && !this.loseCon() && !this.winCon()) {
+    this.field[this.y][this.x] = pathCharacter;
   }
+}
 
   hardModeHelper() {
     if (this.hardMode && this.loopCounter % 3 ===0) {
@@ -128,6 +131,7 @@ class Field {
            holePlaced = true; 
         }
       }
+      console.log(holePlaced)
     }
   }
 
@@ -135,7 +139,6 @@ class Field {
   playGame() {
     this.print(this.field);
 
-    //code to allow prompt and movement
     while (!this.outOfBounds() && !this.loseCon() && !this.winCon()) {
 
       const question = prompt("Which way would you like to move?");
@@ -145,9 +148,6 @@ class Field {
       
       this.hardModeHelper();
 
-      this.getGameState();
-
-      this.field[this.y][this.x] = pathCharacter;
       this.print(this.field);
     }
     this.getGameState();
@@ -209,7 +209,7 @@ const myField = new Field([
   ['O', 'O', '░', '░'],
   ['O', 'O', '░', '░'],
   ['░', '0', '░', '^'],
-],{ randomStart: true, hardMode: false });
+],{ randomStart: true, hardMode: true });
 
 myField.playGame()
 
