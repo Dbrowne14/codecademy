@@ -6,12 +6,13 @@ const fieldCharacter = '░';
 const pathCharacter = '*';
 
 class Field {
-  constructor(field, randomStart, hardMode) {
+  constructor(field, options) {
     this.field = field;
-    this.randomStart = randomStart;
-    this.hardmode = hardMode;
     this.fieldHeight = this.field.length; // to loop through y
     this.fieldWidth = this.field[0].length // to loop through x
+    this.randomStart = options.randomStart;
+    this.hardMode = options.hardMode;
+    this.loopCounter = 0;
     
     //helper to randomSwap first character
     let randomSwap = (hole, fieldCharacter) => {
@@ -35,18 +36,13 @@ class Field {
             this.field[randomYPath][randomXPath] = pathCharacter;
             }
         }
+    
+      if (this.randomStart) {
+          randomSwap(hole,fieldCharacter);
+          randomPathCharacter(pathCharacter);
+      }
     }
-
-    if (this.randomStart) {
-        randomSwap(hole,fieldCharacter);
-        randomPathCharacter(pathCharacter);
-    }
-  }
-
-
-  playGame() {
-    this.print(this.field);
-
+    
     //find start position
     const findAsterisk = (field) => {
       for (let y = 0; y<this.fieldHeight; y++ ) {
@@ -57,93 +53,105 @@ class Field {
         }
       }
     }
-
-    //coordinates - updating through loop
-    let y = findAsterisk(this.field).row;
-    let x = findAsterisk(this.field).column;
-
-    let loopCounter = 0;
-
-    //code to allow prompt and movement
-    while (this.field[y][x] !== fieldCharacter || this.field [y][x] !== pathCharacter) {
-
-      // helper functions for 3 terminate conditions:
-      const loseCon = (y,x) => {
-        return this.field[y][x] === hole;
-      }
-
-      const winCon = (y,x) => {
-        return this.field[y][x] === hat;
-      }
-
-      const outOfBounds = (y, x, fieldWidth, fieldHeight) => {
-        return y < 0 || y > this.fieldHeight-1 || x < 0 || x > this.fieldWidth-1;
-      }
       
-     const hardModeHelper = (hole) => {
-        let holePlaced = false;
-        while (!holePlaced) {
-          let hardY = Math.floor(Math.random()*this.fieldHeight);
-          let hardX = Math.floor(Math.random()*this.fieldWidth);
-          if (this.field[hardY][hardX] === fieldCharacter) {
-             this.field[hardY][hardX] = hole;
-             holePlaced = true; 
-          }
+    const {row, column} = findAsterisk(field);
+    this.x = row
+    this.y = column      
+
+  }
+
+  getGameState() {
+     let fieldState = this.field[this.y][this.x];
+     
+    if (fieldState === hat) {
+      console.log("You're a winner")
+     }
+     
+    if (fieldState === hole) {
+      console.log("You're a loser")
+     }
+
+    if (fieldState !== hat && fieldState !== hole && fieldState !== fieldCharacter && fieldState !== pathCharacter) {
+        console.log("You're out of bounds fella");
+       }
+  }
+
+  outOfBounds() {
+    return this.y < 0 || this.y > this.fieldHeight-1 || this.x < 0 || this.x > this.fieldWidth-1;
+  }
+
+  loseCon() {
+    return this.field[this.y][this.x] === hole;
+  }
+
+  winCon() {
+    return this.field[this.y][this.x] === hat;
+  }
+
+
+  makeStep(input) {
+    switch (input) {
+      case "s":
+      this.y++;
+      this.loopCounter++;
+      break;
+
+      case "w": 
+      this.y--;
+      this.loopCounter++;
+      break;
+
+      case "a":
+      this.x--;
+      this.loopCounter++;
+      break;
+
+      case "d":
+      this.x++;
+      this.loopCounter++;
+      break;
+
+      default:
+      console.log('you must only enter (w/a/s/d)')
+
+      }
+    if (!this.outOfBounds() && !this.loseCon() && !this.winCon()) {
+    this.field[this.y][this.x] = pathCharacter;
+  }
+}
+
+  hardModeHelper() {
+    if (this.hardMode && this.loopCounter % 3 ===0) {
+      let holePlaced = false;
+      while (!holePlaced) {
+        let hardY = Math.floor(Math.random()*this.fieldHeight);
+        let hardX = Math.floor(Math.random()*this.fieldWidth);
+        if (this.field[hardY][hardX] === fieldCharacter) {
+           this.field[hardY][hardX] = hole;
+           holePlaced = true; 
         }
       }
+      console.log(holePlaced)
+    }
+  }
+
+
+  playGame() {
+    this.print(this.field);
+
+    while (!this.outOfBounds() && !this.loseCon() && !this.winCon()) {
 
       const question = prompt("Which way would you like to move?");
         //find way to clear console so loop looks like its updating
-          switch (question) {
+      
+      this.makeStep(question);
+      
+      this.hardModeHelper();
 
-            case "s":
-            y++;
-            loopCounter++;
-            break;
-
-            case "w": 
-            y--;
-            loopCounter++;
-            break;
-
-            case "a":
-            x--;
-            loopCounter++;
-            break;
-
-            case "d":
-            x++;
-            loopCounter++;
-            break;
-
-            default:
-            console.log('you must only enter (w/a/s/d)')
-          }
-
-          if (this.hardmode && loopCounter % 3 ===0) {
-              hardModeHelper(hole);
-            }
-
-          if (outOfBounds(y, x, this.fieldWidth, this.fieldHeight)) {
-            console.log("You're out of bounds fella");
-            break;
-          }
-
-
-          if (loseCon(y,x)) {
-            console.log("You're a loser")
-            break;
-          }
-
-          if (winCon(y,x)) {
-            console.log("You're a winner")
-            break;
-          }
-
-      this.field[y][x] = pathCharacter;
       this.print(this.field);
-      }
     }
+    this.getGameState();
+  }
 
   print() {
     for (let i = 0; i < this.field.length; i++) {
@@ -201,7 +209,7 @@ const myField = new Field([
   ['O', 'O', '░', '░'],
   ['O', 'O', '░', '░'],
   ['░', '0', '░', '^'],
-],"RandomStart", "HardMode");
+],{ randomStart: true, hardMode: true });
 
 myField.playGame()
 
@@ -246,7 +254,6 @@ myField.playGame()
           if (y < 0 || y > fieldHeight-1 || x < 0 || x > fieldWidth-1) {
             console.log("you're out of bounds")
             break*/
-
 
 
 
