@@ -1,0 +1,17 @@
+
+###  TODO
+- [ ] Represent player with a different character so you can keep track where the User is currently standing
+- [ ] create a maze solver (not complete)
+
+###  Completed:
+- [x] convert out of bounds, wincon and lose conditions into helper functions (complete)
+- [x] convert if statement into switch / case (complete)
+- [x] add more helper functions
+  - random asterisk (complete using the randomStart argument) 
+  - hard mode (complete)
+- [x] Find a way to refresh print() when running playGame while loop so I I am not printing !!!! (complete)
+- [x] project for my own extension combine generateField with myField so a random field is called: 
+  - let generatedField = Field.generateField(4,5,0.3);
+  - console.log(generatedField); 
+  - const myField = new Field (generatedField, "s", "h");
+  (complete)
